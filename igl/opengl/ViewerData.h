@@ -146,6 +146,9 @@ public:
   IGL_INLINE void grid_texture();
   IGL_INLINE void image_texture(const std::string fileName );
 
+  //our functions
+  IGL_INLINE void init();
+
   // Copy visualization options from one viewport to another
   //IGL_INLINE void copy_options(const ViewerCore &from, const ViewerCore &to);
 

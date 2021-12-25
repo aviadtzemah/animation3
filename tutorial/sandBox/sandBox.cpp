@@ -24,20 +24,26 @@ void SandBox::Init(const std::string &config)
 	}
 	else
 	{
-		
+		Eigen::Vector3d initial_pos(5, 0, 0);
 		while (nameFileout >> item_name)
 		{
 			std::cout << "openning " << item_name << std::endl;
+
+			//parents.push_back(-1);
 			load_mesh_from_file(item_name);
 			
-			parents.push_back(-1);
+
+			
 			data().add_points(Eigen::RowVector3d(0, 0, 0), Eigen::RowVector3d(0, 0, 1));
-			data().show_overlay_depth = false;
-			data().point_size = 10;
+			data().show_overlay = false; //TPDO: make the overlay always displat on startup
+			data().show_overlay_depth = true;
+			data().point_size = 2;
 			data().line_width = 2;
 			data().set_visible(false, 1);
-			//data().SetCenterOfRotation(Eigen::Vector3d(10,0, 0));
-			
+			if (item_name.find("sphere.obj") != std::string::npos) {
+				spherePosition = initial_pos;
+				data().MyTranslate(initial_pos, true);
+			}
 		}
 		nameFileout.close();
 	}

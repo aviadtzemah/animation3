@@ -228,10 +228,10 @@ IGL_INLINE void ImGuiMenu::draw_viewer_menu(igl::opengl::glfw::Viewer *viewer, s
     if (ImGui::Button("Load##Mesh", ImVec2((w-p)/2.f, 0)))
     {
         int savedIndx = viewer->selected_data_index;
+        int changedListSize = viewer->data_list.size();
       viewer->open_dialog_load_mesh();
-      if (viewer->data_list.size() > viewer->parents.size())
-      {
-          viewer->parents.push_back(-1);
+       if (viewer->data_list.size() > changedListSize)
+       {
           viewer->data_list.back().set_visible(false, 1);
           viewer->data_list.back().set_visible(true, 2);
           viewer->data_list.back().show_faces = 3;

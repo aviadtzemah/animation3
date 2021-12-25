@@ -71,10 +71,30 @@ IGL_INLINE void Renderer::draw( GLFWwindow* window)
 		for (auto& mesh : scn->data_list)
 		{
 			
-			if (mesh.is_visible & core.id)
+			if (mesh.is_visible && core.id && indx!=scn->tip_index )
 			{// for kinematic chain change scn->MakeTrans to parent matrix
-				
-				core.draw(scn->MakeTransScale()*scn->CalcParentsTrans(indx).cast<float>(),mesh);
+				//TODO : this
+				Eigen::Matrix4d trans = scn->CalcParentsTrans(indx);
+
+				/*if (scn->tip_index == indx) {
+
+					Eigen::RowVector4d tipVec4d;
+					tipVec4d << scn->tipPosition(0), scn->tipPosition(1), scn->tipPosition(2), 1;
+
+					tipVec4d *= trans;
+
+					scn->tipPosition << tipVec4d(0), tipVec4d(1), tipVec4d(2);
+
+					if (scn->tipPosition != scn->prevTipPosition) {
+						std::cout << "IN THE BGEINNING" << std::endl;
+						std::cout << scn->tipPosition << std::endl;
+						std::cout << "FIN" << std::endl;
+						scn->prevTipPosition = scn->tipPosition;
+					}
+				}*/
+//				core.draw(scn->data_list[scn->parents[indx]].MakeTransd() * trans.cast<float>(), mesh);
+
+				core.draw(scn->MakeTransScale() * trans.cast<float>(),mesh);
 			}
 			indx++;
 		}
@@ -157,10 +177,24 @@ void Renderer::MouseProcessing(int button)
 			Eigen::Matrix4f tmpM = core().proj;
 			double xToMove = -(double)xrel / core().viewport[3] * (z+2*near) * (far) / (far + 2*near) * 2.0 * tanf(angle / 360 * M_PI) / (core().camera_zoom * core().camera_base_zoom);
 			double yToMove = (double)yrel / core().viewport[3] *(z+2*near) * (far ) / (far+ 2*near) * 2.0 * tanf(angle / 360 * M_PI) / (core().camera_zoom * core().camera_base_zoom);
-		
-			scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(xToMove, 0, 0));
-			scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(0, yToMove, 0));
+			
+			if(scn->data().id == 0){
+				scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(xToMove, 0, 0));
+				scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(0, yToMove, 0));
+				std::cout << "before: " << scn->spherePosition << std::endl;
+				scn->spherePosition += Eigen::Vector3d(xToMove, yToMove, 0);
+				std::cout << "delta: " << Eigen::Vector3d(xToMove, yToMove, 0) << std::endl;
+				std::cout << "after: "<< scn->spherePosition << std::endl;
+			}
+			else{
+				int i = scn->data().id;
+				for (; scn->parents[i] >= 0; i = scn->parents[i]);
+				
+				scn->data_list[i].TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(xToMove, 0, 0));
+				scn->data_list[i].TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(0, yToMove, 0));
 
+				/*scn->tipPosition += Eigen::Vector3d(xToMove, yToMove, 0);*/
+			}
 		}
 		else
 		{
@@ -181,14 +215,11 @@ void Renderer::MouseProcessing(int button)
 			double yToMove = (double)yrel / core().viewport[3] * far / z * near * 2.0f * tanf(angle / 360 * M_PI) / (core().camera_zoom * core().camera_base_zoom);
 			scn->MyTranslate(Eigen::Vector3d(xToMove, 0, 0), true);
 			scn->MyTranslate(Eigen::Vector3d(0, yToMove, 0), true);
-
 		}
 		else
 		{
 			scn->RotateInSystem(Eigen::Vector3d(1, 0, 0), yrel / 100.0);
-
 			scn->RotateInSystem(Eigen::Vector3d(0, 1, 0), xrel / 100.0);
-
 		}
 	}
 }

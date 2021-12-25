@@ -63,11 +63,14 @@ namespace glfw
   }
 
   IGL_INLINE Viewer::Viewer():
-    data_list(1),
-    selected_data_index(0),
-    next_data_id(1),
-	isPicked(false),
-	isActive(false)
+        data_list(1),
+        selected_data_index(0),
+        next_data_id(1),
+	    isPicked(false),
+	    isActive(false),
+        linkNum(0),
+        tipPosition(Eigen::Vector3d(0,0,0)),
+        prevTipPosition(Eigen::Vector3d(0, 0, 0))
   {
     data_list.front().id = 0;
 
@@ -180,7 +183,25 @@ namespace glfw
     //for (unsigned int i = 0; i<plugins.size(); ++i)
     //  if (plugins[i]->post_load())
     //    return true;
+    parents.push_back(-1);
+    if(mesh_file_name_string.find("zcylinder.obj") != std::string::npos){
+      linkNum++;
+      tip_index = data().id;
+      tipPosition += Eigen::Vector3d(0, 0, 1.6); //TODO: consider the angle of the previous link
 
+      if (prevParent != -1) {
+          parents[data().id] = prevParent;
+          prevParent = data().id;
+      }
+      else {
+          prevParent = data().id;
+      }
+
+      data().MyTranslate(Eigen::Vector3d(0, 0, 1.6), true);
+      data().SetCenterOfRotation(Eigen::Vector3d(0, 0, -0.8));
+      data().init();
+    
+    }
     return true;
   }
 
@@ -356,7 +377,7 @@ namespace glfw
 
 	  for (int i = indx; parents[i] >= 0; i = parents[i])
 	  {
-		  //std::cout << "parent matrix:\n" << scn->data_list[scn->parents[i]].MakeTrans() << std::endl;
+		  //std::cout << "parent matrix:\n" << data_list[parents[i]].MakeTransd() << std::endl;
 		  prevTrans = data_list[parents[i]].MakeTransd() * prevTrans;
 	  }
 

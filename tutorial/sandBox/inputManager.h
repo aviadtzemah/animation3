@@ -23,6 +23,8 @@ static void glfw_mouse_press(GLFWwindow* window, int button, int action, int mod
 	  double depth, closestZ = 1;
 	  int i = 0, savedIndx = scn->selected_data_index, lastIndx= scn->selected_data_index;
 
+	  int last_picked = scn->picked_index;
+
 	  for (; i < scn->data_list.size(); i++)
 	  {
 		  scn->selected_data_index = i;
@@ -30,14 +32,20 @@ static void glfw_mouse_press(GLFWwindow* window, int button, int action, int mod
 		  if (depth < 0 && (closestZ > 0 || closestZ < depth))
 		  {
 			  savedIndx = i;
+			  scn->picked_index = i;
 			  closestZ = depth;
 			  std::cout << "found " << depth << std::endl;
 		  }
 	  }
 	  scn->selected_data_index = savedIndx;
 	  scn->data().set_colors(Eigen::RowVector3d(0.9, 0.1, 0.1));
-	  if (lastIndx != savedIndx)
+	  if (lastIndx != savedIndx) {
 		  scn->data_list[lastIndx].set_colors(Eigen::RowVector3d(255.0 / 255.0, 228.0 / 255.0, 58.0 / 255.0));
+	  }
+
+	  if (last_picked == scn->picked_index) {
+		  scn->picked_index = -1;
+	  }
 
 	  rndr->UpdatePosition(x2, y2);
 
@@ -45,7 +53,6 @@ static void glfw_mouse_press(GLFWwindow* window, int button, int action, int mod
   else
   {
 	  rndr->GetScene()->isPicked = false;
-
   }
 }
 
@@ -72,10 +79,21 @@ static void glfw_mouse_press(GLFWwindow* window, int button, int action, int mod
 static void glfw_mouse_scroll(GLFWwindow* window, double x, double y)
 {
 	Renderer* rndr = (Renderer*)glfwGetWindowUserPointer(window);
-	if(rndr->IsPicked())
-		rndr->GetScene()->data().MyScale(Eigen::Vector3d(1 + y * 0.01,1 + y * 0.01,1+y*0.01));
-	else
-		rndr->GetScene()->MyTranslate(Eigen::Vector3d(0,0, - y * 0.03),true);
+	if(rndr->IsPicked()){
+		if(rndr->GetScene()->data().id == 0){
+			rndr->GetScene()->data().TranslateInSystem(rndr->GetScene()->GetRotation(), Eigen::Vector3d(0, 0,  -y * 0.03));
+			rndr->GetScene()->spherePosition += Eigen::Vector3d(0, 0, -y * 0.03);
+		}
+		else{
+		 	int i = rndr->GetScene()->data().id;
+		 	for (; rndr->GetScene()->parents[i] >= 0; i = rndr->GetScene()->parents[i]);
+			
+			rndr->GetScene()->data_list[i].TranslateInSystem(rndr->GetScene()->GetRotation(), Eigen::Vector3d(0, 0,  -y * 0.03));
+		}
+	}
+	else {
+		rndr->GetScene()->MyTranslate(Eigen::Vector3d(0, 0, -y * 0.03), true);
+	}	
 }
 
 void glfw_window_size(GLFWwindow* window, int width, int height)
@@ -139,12 +157,12 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			rndr->core().orthographic = !rndr->core().orthographic;
 			break;
 		}
-		case 'T':
-		case 't':
-		{
-			rndr->core().toggle(scn->data().show_faces);
-			break;
-		}
+		// case 'T':
+		// case 't':
+		// {
+		// 	rndr->core().toggle(scn->data().show_faces);
+		// 	break;
+		// }
 		case '[':
 		case ']':
 		{
@@ -170,22 +188,52 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			scn->data().SetCenterOfRotation(tmp);
 			break;
 		case GLFW_KEY_UP:
-			rndr->TranslateCamera(Eigen::Vector3f(0, 0.01f,0));
+			if (scn->picked_index != -1) {
+				scn->data().RotateInSystem(Eigen::Vector3d(1, 0, 0), -0.01);
+			}
+			else {
+				scn->RotateInSystem(Eigen::Vector3d(1, 0, 0), -0.01);
+			}
 			break;
 		case GLFW_KEY_DOWN:
-			rndr->TranslateCamera(Eigen::Vector3f(0, -0.01f,0));
-
+			if (scn->picked_index != -1) {
+				scn->data().RotateInSystem(Eigen::Vector3d(1, 0, 0), 0.01);
+			}
+			else {
+				scn->RotateInSystem(Eigen::Vector3d(1, 0, 0), 0.01);
+			}
 			break;
 		case GLFW_KEY_LEFT:
-				rndr->TranslateCamera(Eigen::Vector3f(-0.01f, 0,0));
+			if (scn->picked_index != -1) {
+				scn->data().RotateInSystem(Eigen::Vector3d(0, 1, 0), -0.01);
+			}
+			else {
+				scn->RotateInSystem(Eigen::Vector3d(0, 1, 0), -0.01);
+			}
 			break;
 		case GLFW_KEY_RIGHT:
-			rndr->TranslateCamera(Eigen::Vector3f(0.01f, 0, 0));
+			if (scn->picked_index != -1) {
+				scn->data().RotateInSystem(Eigen::Vector3d(0, 1, 0), 0.01);
+			}
+			else {
+				scn->RotateInSystem(Eigen::Vector3d(0, 1, 0), 0.01);
+			}
 			break;
 		case ' ':
-
+			// TODO: implement
 			break;
-		
+		case 'T':
+		case 't':
+			std::cout << "tip position: " << scn->tipPosition << std::endl; 
+			break;
+		case 'D':
+		case 'd':
+			std::cout << "sphere position: " << scn->spherePosition << std::endl; 
+			break;
+		case 'P':
+		case 'p':
+			// TODO: implement
+			break;
 		default: 
 			Eigen::Vector3f shift;
 			float scale;

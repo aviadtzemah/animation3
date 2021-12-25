@@ -27,7 +27,7 @@ IGL_INLINE igl::opengl::ViewerData::ViewerData()
   show_vertid(false),
   show_faceid(false),
   show_texture(false),
-  point_size(30),
+  point_size(1),
   line_width(0.5f),
   line_color(0,0,0,1),
   label_color(0,0,0.04,1),
@@ -45,6 +45,53 @@ IGL_INLINE void igl::opengl::ViewerData::set_face_based(bool newvalue)
     face_based = newvalue;
     dirty = MeshGL::DIRTY_ALL;
   }
+}
+
+IGL_INLINE void igl::opengl::ViewerData::init() {
+
+    Eigen::Matrix3d rotation = GetRotation();
+    Eigen::MatrixXd V_box(7, 3);
+    V_box <<
+        0, 0, 0,
+        rotation(0, 0), rotation(0, 1), rotation(0, 2),  
+        rotation(1, 0), rotation(1, 1), rotation(1, 2),
+        rotation(2, 0), rotation(2, 1), rotation(2, 2),
+        -rotation(0, 0), -rotation(0, 1), -rotation(0, 2),
+        -rotation(1, 0), -rotation(1, 1), -rotation(1, 2),
+        -rotation(2, 0), -rotation(2, 1), -rotation(2, 2);
+
+    Eigen::MatrixXd M_box(7, 3);
+    M_box <<
+        0, 0, -0.8,
+        0, 0, -0.8,
+        0, 0, -0.8,
+        0, 0, -0.8,
+        0, 0, -0.8,
+        0, 0, -0.8,
+        0, 0, -0.8;
+
+    V_box += M_box;
+        
+    // Edges of the bounding box
+    Eigen::MatrixXi E_box(6, 2);
+    E_box <<
+        0, 1,
+        0, 2,
+        0, 3,
+        0, 4,
+        0, 5,
+        0, 6;
+        // Plot the corners of the bounding box as points
+    add_points(V_box, Eigen::RowVector3d(1, 0, 0));
+
+    // Plot the edges of the bounding box
+    for (unsigned i = 0;i < E_box.rows(); ++i)
+        add_edges
+        (
+            V_box.row(E_box(i, 0)),
+            V_box.row(E_box(i, 1)),
+            i % 3 == 0 ? Eigen::RowVector3d(1, 0, 0) : i % 3 == 1 ? Eigen::RowVector3d(0, 1, 0) : i % 3 == 2 ? Eigen::RowVector3d(0, 0, 1) : Eigen::RowVector3d(0, 0, 0)
+        );
 }
 
 // Helpers that draws the most common meshes
@@ -74,7 +121,7 @@ IGL_INLINE void igl::opengl::ViewerData::set_mesh(
       Eigen::Vector3d(GOLD_AMBIENT[0], GOLD_AMBIENT[1], GOLD_AMBIENT[2]),
       Eigen::Vector3d(GOLD_DIFFUSE[0], GOLD_DIFFUSE[1], GOLD_DIFFUSE[2]),
       Eigen::Vector3d(GOLD_SPECULAR[0], GOLD_SPECULAR[1], GOLD_SPECULAR[2]));
-	image_texture("C:/Dev/EngineForAnimationCourse/tutorial/textures/snake1.png");
+	image_texture("D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/tutorial/textures/snake1.png");
 //    grid_texture();
   }
   else
@@ -88,6 +135,8 @@ IGL_INLINE void igl::opengl::ViewerData::set_mesh(
       cerr << "ERROR (set_mesh): The new mesh has a different number of vertices/faces. Please clear the mesh before plotting."<<endl;
   }
   dirty |= MeshGL::DIRTY_FACE | MeshGL::DIRTY_POSITION;
+
+  //init();
 }
 
 IGL_INLINE void igl::opengl::ViewerData::set_vertices(const Eigen::MatrixXd& _V)

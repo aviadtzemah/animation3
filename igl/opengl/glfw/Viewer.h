@@ -140,6 +140,14 @@ public:
 	bool isPicked;
 	bool isActive;
 
+    // OUR ADDITION
+    int linkNum;
+    Eigen::Vector3d tipPosition;
+    Eigen::Vector3d prevTipPosition;
+    Eigen::Vector3d spherePosition;
+    int prevParent = -1;
+    int tip_index = -1;
+    int picked_index = -1;
     
 
     // List of registered plugins
