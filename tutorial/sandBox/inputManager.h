@@ -119,7 +119,12 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 {
 	Renderer* rndr = (Renderer*) glfwGetWindowUserPointer(window);
 	Eigen::Vector3d tmp;
+	
 	SandBox* scn = (SandBox*)rndr->GetScene();
+	Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+	Eigen::Vector3d length(0, 0, scn->linkLength);
+	Eigen::Vector3d R, E, D;
+	Eigen::Matrix3d rotationSum;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -189,6 +194,7 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			break;
 		case GLFW_KEY_UP:
 			if (scn->picked_index != -1) {
+				//scn->data().EulerRotation(0.1, 0.1, 0.1);
 				scn->data().RotateInSystem(Eigen::Vector3d(1, 0, 0), -0.01);
 			}
 			else {
@@ -220,7 +226,11 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			}
 			break;
 		case ' ':
-			// TODO: implement
+			rndr->toggleCCD = !rndr->toggleCCD;
+			break;
+		case 'V':
+		case 'v':
+			rndr->toggleFabrik = !rndr->toggleFabrik;
 			break;
 		case 'T':
 		case 't':

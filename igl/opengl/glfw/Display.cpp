@@ -130,6 +130,15 @@ bool Display::launch_rendering(bool loop)
 		{//motion
 			glfwPollEvents();
 			// In microseconds
+
+			if (renderer->toggleCCD) {
+				renderer->AnimateCCD();
+			}
+			if (renderer->toggleFabrik) {
+				renderer->AnimateFabrik();
+			}
+
+
 			double duration = 1000000. * (igl::get_seconds() - tic);
 			const double min_duration = 1000000. / renderer->core().animation_max_fps;
 			if (duration < min_duration)

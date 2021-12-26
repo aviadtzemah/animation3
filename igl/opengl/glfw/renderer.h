@@ -105,6 +105,12 @@ public:
 	void RotateCamera(float amtX, float amtY);
 	inline bool IsPicked() { return scn->isPicked; }
 
+	bool toggleCCD;
+	bool toggleFabrik;
+	int currTip;
+	IGL_INLINE bool AnimateCCD();
+	IGL_INLINE bool AnimateFabrik();
+
 	
 private:
 	// Stores all the viewing options

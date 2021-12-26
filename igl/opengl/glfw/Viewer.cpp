@@ -187,7 +187,17 @@ namespace glfw
     if(mesh_file_name_string.find("zcylinder.obj") != std::string::npos){
       linkNum++;
       tip_index = data().id;
-      tipPosition += Eigen::Vector3d(0, 0, 1.6); //TODO: consider the angle of the previous link
+
+      if (linkNum == 1) {
+          tips.push_back(tipPosition);
+          tipPosition += Eigen::Vector3d(0, 0, 0.8);
+      }
+      else {
+          tipPosition += Eigen::Vector3d(0, 0, 1.6);
+      }
+
+      
+      tips.push_back(tipPosition);
 
       if (prevParent != -1) {
           parents[data().id] = prevParent;
@@ -197,9 +207,13 @@ namespace glfw
           prevParent = data().id;
       }
 
-      data().MyTranslate(Eigen::Vector3d(0, 0, 1.6), true);
+      if (linkNum != 1) {
+          data().MyTranslate(Eigen::Vector3d(0, 0, 1.6), true);
+      }
+
       data().SetCenterOfRotation(Eigen::Vector3d(0, 0, -0.8));
       data().init();
+      
     
     }
     return true;

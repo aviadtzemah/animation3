@@ -20,6 +20,8 @@ public:
 	void RotateInSystem(Eigen::Vector3d rotAxis, double angle);
 	void MyRotate(const Eigen::Matrix3d &rot);
 	void MyScale(Eigen::Vector3d amt);
+	void EulerRotation(double phi, double theta, double psi);
+
 
 	Eigen::Matrix3d GetRotation() const{ return Tout.rotation().matrix(); }
 

@@ -145,9 +145,11 @@ public:
     Eigen::Vector3d tipPosition;
     Eigen::Vector3d prevTipPosition;
     Eigen::Vector3d spherePosition;
+    double linkLength = 1.6;
     int prevParent = -1;
     int tip_index = -1;
     int picked_index = -1;
+    std::vector<Eigen::Vector3d> tips;
     
 
     // List of registered plugins

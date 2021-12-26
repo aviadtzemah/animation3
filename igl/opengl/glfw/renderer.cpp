@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <igl/unproject_onto_mesh.h>
 #include "igl/look_at.h"
+#include <math.h>
 //#include <Eigen/Dense>
 
 Renderer::Renderer() : selected_core_index(0),
@@ -71,30 +72,10 @@ IGL_INLINE void Renderer::draw( GLFWwindow* window)
 		for (auto& mesh : scn->data_list)
 		{
 			
-			if (mesh.is_visible && core.id && indx!=scn->tip_index )
+			if (mesh.is_visible & core.id )
 			{// for kinematic chain change scn->MakeTrans to parent matrix
-				//TODO : this
-				Eigen::Matrix4d trans = scn->CalcParentsTrans(indx);
 
-				/*if (scn->tip_index == indx) {
-
-					Eigen::RowVector4d tipVec4d;
-					tipVec4d << scn->tipPosition(0), scn->tipPosition(1), scn->tipPosition(2), 1;
-
-					tipVec4d *= trans;
-
-					scn->tipPosition << tipVec4d(0), tipVec4d(1), tipVec4d(2);
-
-					if (scn->tipPosition != scn->prevTipPosition) {
-						std::cout << "IN THE BGEINNING" << std::endl;
-						std::cout << scn->tipPosition << std::endl;
-						std::cout << "FIN" << std::endl;
-						scn->prevTipPosition = scn->tipPosition;
-					}
-				}*/
-//				core.draw(scn->data_list[scn->parents[indx]].MakeTransd() * trans.cast<float>(), mesh);
-
-				core.draw(scn->MakeTransScale() * trans.cast<float>(),mesh);
+				core.draw(scn->MakeTransScale() * scn->CalcParentsTrans(indx).cast<float>(), mesh);
 			}
 			indx++;
 		}
@@ -117,7 +98,9 @@ void Renderer::SetScene(igl::opengl::glfw::Viewer* viewer)
 IGL_INLINE void Renderer::init(igl::opengl::glfw::Viewer* viewer,int coresNum, igl::opengl::glfw::imgui::ImGuiMenu* _menu)
 {
 	scn = viewer;
-	
+	toggleCCD = false;
+	toggleFabrik = false;
+	currTip = scn->linkNum;
 	doubleVariable = 0;
 	core().init(); 
 	menu = _menu;
@@ -181,10 +164,10 @@ void Renderer::MouseProcessing(int button)
 			if(scn->data().id == 0){
 				scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(xToMove, 0, 0));
 				scn->data().TranslateInSystem(scn->GetRotation(), Eigen::Vector3d(0, yToMove, 0));
-				std::cout << "before: " << scn->spherePosition << std::endl;
-				scn->spherePosition += Eigen::Vector3d(xToMove, yToMove, 0);
-				std::cout << "delta: " << Eigen::Vector3d(xToMove, yToMove, 0) << std::endl;
-				std::cout << "after: "<< scn->spherePosition << std::endl;
+				//std::cout << "before: " << scn->spherePosition << std::endl;
+				scn->spherePosition += scn->GetRotation().transpose() * Eigen::Vector3d(xToMove, yToMove, 0);
+				//std::cout << "delta: " << Eigen::Vector3d(xToMove, yToMove, 0) << std::endl;
+				//std::cout << "after: "<< scn->spherePosition << std::endl;
 			}
 			else{
 				int i = scn->data().id;
@@ -384,6 +367,165 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		selected_core_index = core_list.size() - 1;
 		return core_list.back().id;
 	}
+	
+
+	// OUR ADDITION
+	IGL_INLINE bool Renderer::AnimateCCD() {
+		Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		bool canReach = std::sqrt((O - scn->spherePosition).squaredNorm()) < scn->linkNum * 1.6;
+		if(canReach){
+			// currTip goes from linkNum to 1
+
+			// calculating R and E
+			Eigen::Vector3d R = O, E = O, D = scn->spherePosition;	//R = cylinder base, E = cylinder tip ,D = sphere location
+			Eigen::Vector3d length(0, 0, scn->linkLength);
+			Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+			for (int i = 1; i < scn->data_list.size(); i++) {
+				rotationSum *= scn->data_list[i].GetRotation();
+
+				if (i < currTip) {
+					//Eigen::RowVector3d RPrime(R(0), R(1), R(2));
+					R += rotationSum * length;
+					E = R;
+				}
+				else {
+					E += rotationSum * length; // TODO: maybe this is not working
+				}			
+			}
+
+			scn->tipPosition = E;
+			double distance = std::sqrt((scn->tipPosition - scn->spherePosition).squaredNorm());
+			if (std::abs(distance) <= 0.1) {
+				toggleCCD = false;
+				std::cout << "reached!" << std::endl;
+				return true;
+			}
+			//std::cout << "E: " << E << std::endl;
+			Eigen::Vector3d RE = E - R;
+			Eigen::Vector3d RD = D - R;
+			double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+			//std::cout << "angle before rand: " << angle << std::endl;
+
+			if (angle <= 1 && angle >= -1) {
+				angle = acos(angle);
+			}
+			else {
+				angle = angle > 1 ? acos(1) : acos(-1);
+			}
+
+			Eigen::Vector3d plane = RE.cross(RD).normalized();
+			//ED/std::sqrt(ED.squaredNorm())
+			//plane / std::sqrt(plane.squaredNorm())
+			std::cout << "plane: " << plane << std::endl;
+			scn->data_list[currTip].MyRotate(plane, angle); //todo make better ccd movement
+
+			if (currTip == 1) {
+				currTip = scn->linkNum;
+			}
+			else {
+				currTip--;
+			}
+		}
+		else{
+			toggleCCD = false;
+			std::cout << "cannot reach" << std::endl;
+			return false;
+		}
+	}
+
+	IGL_INLINE bool Renderer::AnimateFabrik() {
+		Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		bool canReach = std::sqrt((O - scn->spherePosition).squaredNorm()) < scn->linkNum * 1.6;
+		if(canReach){
+			Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+			std::vector<Eigen::Vector3d> joints;	//R = cylinder base, E = cylinder tip
+			std::vector<Eigen::Vector3d> saved_joints;
+			joints.push_back(O);
+			Eigen::Vector3d length(0, 0, scn->linkLength);
+			// calculating all the joints' points
+			Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+			for (int i = 1; i < scn->data_list.size(); i++) {
+				rotationSum *= scn->data_list[i].GetRotation();
+
+				O += rotationSum * length;
+				joints.push_back(O);
+			}
+			saved_joints = joints;
+			double dist = std::sqrt((joints[0] - scn->spherePosition).squaredNorm());
+
+			// checking if reachable
+			if (dist > scn->linkLength * scn->linkNum) {
+				for (int i = 0; i < joints.size() - 1; i++) {
+					double ri = std::sqrt((joints[i] - scn->spherePosition).squaredNorm());
+					double gammai = scn->linkLength / ri;
+					joints[i + 1] = (1 - gammai) * joints[i] + gammai * scn->spherePosition;
+				}
+			}
+			else {
+				Eigen::Vector3d b = joints[0];
+				double difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+				
+				double tol = 0.1; // assuming tol is 0.1
+				while (difA > tol) {
+					joints[joints.size()-1] = scn->spherePosition;
+					for (int i = joints.size() - 2; i >= 0; i--) {
+						double ri = std::sqrt((joints[i+1] - joints[i]).squaredNorm());
+						double gammai = scn->linkLength / ri;
+						joints[i] = (1 - gammai) * joints[i+1] + gammai * joints[i];
+					}
+					joints[0] = b;
+
+					for (int i = 0; i < joints.size() - 1; i++) {
+						double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+						double gammai = scn->linkLength / ri;
+						joints[i+1] = (1 - gammai) * joints[i] + gammai * joints[i+1];
+					}
+					difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+				}
+			}
+
+			for (int i = 0; i < joints.size() - 1; i++){
+				Eigen::Vector3d RE = saved_joints[i+1] - joints[i];
+				Eigen::Vector3d RD = joints[i+1] - joints[i];
+				double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+				//std::cout << "angle before rand: " << angle << std::endl;
+				if (angle <= 1 && angle >= -1) {
+					angle = acos(angle);
+				}
+				else {
+					angle = angle > 1 ? acos(1) : acos(-1);
+				}
+
+				Eigen::Vector3d plane = RE.cross(RD).normalized();
+				//ED/std::sqrt(ED.squaredNorm())
+				if(i + 1 < scn->data_list.size()){
+					scn->data_list[i+1].MyRotate(plane, angle); //todo make better ccd movement
+				}
+			}
+
+			scn->tipPosition = joints[joints.size() - 1];
+			double distance = std::sqrt((scn->tipPosition - scn->spherePosition).squaredNorm());
+			if (std::abs(distance) <= 0.1) {
+				toggleFabrik = false;
+				std::cout << "reached!" << std::endl;
+				return true;
+			}
+
+		}
+		else{
+			toggleFabrik = false;
+			std::cout << "cannot reach" << std::endl;
+			return false;
+		}
+	}
+
+
+
+
+
+
+
+
 
 	//IGL_INLINE void Viewer::select_hovered_core()
 	//{

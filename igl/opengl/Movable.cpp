@@ -1,5 +1,7 @@
 #include "Movable.h"
 #include <iostream>
+#include <math.h>
+
 Movable::Movable()
 {
 	Tout = Eigen::Affine3d::Identity();
@@ -41,8 +43,6 @@ void Movable::MyTranslate(Eigen::Vector3d amt, bool preRotation)
 }
 void Movable::TranslateInSystem(Eigen::Matrix3d rot, Eigen::Vector3d amt)
 {
-	
-	
 	Tout.pretranslate(rot.transpose()*amt);
 }
 
@@ -61,6 +61,28 @@ void Movable::RotateInSystem(Eigen::Vector3d rotAxis, double angle)
 {
 	
 	Tout.rotate(Eigen::AngleAxisd(angle, Tout.rotation().transpose()*(rotAxis.normalized())));
+}
+
+void Movable::EulerRotation(double phi, double theta, double psi) {
+	Eigen::Matrix3d A;
+	double A00 = cos(psi)*cos(phi) - cos(theta)*sin(phi)*sin(psi);
+	double A01 = -sin(psi)*cos(phi) - cos(theta)*sin(phi)*cos(psi);
+	double A02 = sin(theta)*sin(phi);
+	
+	double A10 = cos(psi)*sin(phi) + cos(theta)*cos(phi)*sin(psi);
+	double A11 = -sin(psi)*sin(phi) + cos(theta)*cos(phi)*cos(psi);
+	double A12 = -sin(theta)*cos(phi);
+
+	double A20 = sin(theta)*sin(psi);
+	double A21 = sin(theta)*cos(psi);
+	double A22 = cos(theta);
+
+	A <<
+		A00, A01, A02,
+		A10, A11, A12,
+		A20, A21, A22;
+
+	Tout.rotate(A);
 }
 
 void Movable::MyRotate(const Eigen::Matrix3d& rot)
