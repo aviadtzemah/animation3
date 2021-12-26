@@ -242,7 +242,12 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			break;
 		case 'P':
 		case 'p':
-			// TODO: implement
+			if (scn->picked_index != -1) {
+				std::cout << "link rotation matrix" << scn->data().GetRotation() << std::endl;
+			}
+			else {
+				std::cout << "scene rotation: " << scn->GetRotation() << std::endl;
+			}
 			break;
 		default: 
 			Eigen::Vector3f shift;

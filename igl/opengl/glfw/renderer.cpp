@@ -416,7 +416,6 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 			Eigen::Vector3d plane = RE.cross(RD).normalized();
 			//ED/std::sqrt(ED.squaredNorm())
 			//plane / std::sqrt(plane.squaredNorm())
-			std::cout << "plane: " << plane << std::endl;
 			scn->data_list[currTip].MyRotate(plane, angle); //todo make better ccd movement
 
 			if (currTip == 1) {
