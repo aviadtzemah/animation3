@@ -367,7 +367,6 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		selected_core_index = core_list.size() - 1;
 		return core_list.back().id;
 	}
-	
 
 	// OUR ADDITION
 	IGL_INLINE bool Renderer::AnimateCCD() {
@@ -407,7 +406,7 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 			//std::cout << "angle before rand: " << angle << std::endl;
 
 			if (angle <= 1 && angle >= -1) {
-				angle = acos(angle);
+				angle = acos(angle)/15;
 			}
 			else {
 				angle = angle > 1 ? acos(1) : acos(-1);
@@ -433,89 +432,236 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 	}
 
 	IGL_INLINE bool Renderer::AnimateFabrik() {
+
 		Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
-		bool canReach = std::sqrt((O - scn->spherePosition).squaredNorm()) < scn->linkNum * 1.6;
-		if(canReach){
-			Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
-			std::vector<Eigen::Vector3d> joints;	//R = cylinder base, E = cylinder tip
-			std::vector<Eigen::Vector3d> saved_joints;
+		std::vector<Eigen::Vector3d> joints;	//R = cylinder base, E = cylinder tip
+		std::vector<Eigen::Vector3d> saved_joints;
+		joints.push_back(O);
+		Eigen::Vector3d length(0, 0, scn->linkLength);
+
+		// calculating all the joints' points
+		Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+		for (int i = 1; i < scn->data_list.size(); i++) {
+			rotationSum *= scn->data_list[i].GetRotation();
+
+			O += rotationSum * length;
 			joints.push_back(O);
-			Eigen::Vector3d length(0, 0, scn->linkLength);
-			// calculating all the joints' points
-			Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
-			for (int i = 1; i < scn->data_list.size(); i++) {
-				rotationSum *= scn->data_list[i].GetRotation();
+		}
+		saved_joints = joints;
 
-				O += rotationSum * length;
-				joints.push_back(O);
+		double dist = std::sqrt((joints[0] - scn->spherePosition).squaredNorm());
+		// checking if reachable
+		if (dist > scn->linkLength * scn->linkNum) {
+			for (int i = 0; i < joints.size() - 1; i++) {
+				double ri = std::sqrt((joints[i] - scn->spherePosition).squaredNorm());
+				double gammai = scn->linkLength / ri;
+				joints[i + 1] = (1 - gammai) * joints[i] + gammai * scn->spherePosition;
 			}
-			saved_joints = joints;
-			double dist = std::sqrt((joints[0] - scn->spherePosition).squaredNorm());
+		}
+		else {
+			Eigen::Vector3d b = joints[0];
+			double difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
 
-			// checking if reachable
-			if (dist > scn->linkLength * scn->linkNum) {
-				for (int i = 0; i < joints.size() - 1; i++) {
-					double ri = std::sqrt((joints[i] - scn->spherePosition).squaredNorm());
+			double tol = 0.1; // assuming tol is 0.1
+			while (difA > tol) {
+				joints[joints.size() - 1] = scn->spherePosition;
+				for (int i = joints.size() - 2; i >= 0; i--) {
+					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
 					double gammai = scn->linkLength / ri;
-					joints[i + 1] = (1 - gammai) * joints[i] + gammai * scn->spherePosition;
+					joints[i] = (1 - gammai) * joints[i + 1] + gammai * joints[i];
 				}
+				joints[0] = b;
+
+				for (int i = 0; i < joints.size() - 1; i++) {
+					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+					double gammai = scn->linkLength / ri;
+					joints[i + 1] = (1 - gammai) * joints[i] + gammai * joints[i + 1];
+				}
+				difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+			}
+		}
+
+		// moving the links
+		for (int i = 0; i < joints.size() - 1; i++) {
+			Eigen::Vector3d RE = saved_joints[i + 1] - saved_joints[i];
+			Eigen::Vector3d RD = joints[i + 1] - saved_joints[i];
+			double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+			//std::cout << "angle before rand: " << angle << std::endl;
+			if (angle <= 1 && angle >= -1) {
+				angle = acos(angle) / 40;
 			}
 			else {
-				Eigen::Vector3d b = joints[0];
-				double difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
-				
-				double tol = 0.1; // assuming tol is 0.1
-				while (difA > tol) {
-					joints[joints.size()-1] = scn->spherePosition;
-					for (int i = joints.size() - 2; i >= 0; i--) {
-						double ri = std::sqrt((joints[i+1] - joints[i]).squaredNorm());
-						double gammai = scn->linkLength / ri;
-						joints[i] = (1 - gammai) * joints[i+1] + gammai * joints[i];
-					}
-					joints[0] = b;
-
-					for (int i = 0; i < joints.size() - 1; i++) {
-						double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
-						double gammai = scn->linkLength / ri;
-						joints[i+1] = (1 - gammai) * joints[i] + gammai * joints[i+1];
-					}
-					difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
-				}
+				angle = angle > 1 ? acos(1) : acos(-1);
 			}
 
-			for (int i = 0; i < joints.size() - 1; i++){
-				Eigen::Vector3d RE = saved_joints[i+1] - joints[i];
-				Eigen::Vector3d RD = joints[i+1] - joints[i];
-				double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
-				//std::cout << "angle before rand: " << angle << std::endl;
-				if (angle <= 1 && angle >= -1) {
-					angle = acos(angle);
-				}
-				else {
-					angle = angle > 1 ? acos(1) : acos(-1);
-				}
-
-				Eigen::Vector3d plane = RE.cross(RD).normalized();
-				//ED/std::sqrt(ED.squaredNorm())
-				if(i + 1 < scn->data_list.size()){
-					scn->data_list[i+1].MyRotate(plane, angle); //todo make better ccd movement
-				}
+			Eigen::Vector3d plane = RE.cross(RD).normalized();
+			if (i + 1 < scn->data_list.size()) {
+				scn->data_list[i + 1].MyRotate(plane, angle);
 			}
-
-			scn->tipPosition = joints[joints.size() - 1];
-			double distance = std::sqrt((scn->tipPosition - scn->spherePosition).squaredNorm());
-			if (std::abs(distance) <= 0.1) {
-				toggleFabrik = false;
-				std::cout << "reached!" << std::endl;
-				return true;
-			}
-
 		}
-		else{
+
+
+		// calculating the new poistion of the tip after moving the links
+		Eigen::Vector3d tip = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		Eigen::Matrix3d rotationSum1 = Eigen::Matrix3d::Identity();
+		Eigen::Vector3d length1(0, 0, scn->linkLength);
+		for (int i = 1; i < scn->data_list.size(); i++) {
+			rotationSum1 *= scn->data_list[i].GetRotation();
+
+			tip += rotationSum1 * length1;
+		}
+
+		// checking if the tip moved close enough to the target
+		double distance1 = std::sqrt((tip - scn->spherePosition).squaredNorm());
+		if (std::abs(distance1) <= 0.1) {
 			toggleFabrik = false;
-			std::cout << "cannot reach" << std::endl;
-			return false;
+			std::cout << "reached!" << std::endl;
+			return true;
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		//bool canReach = std::sqrt((O - scn->spherePosition).squaredNorm()) < scn->linkNum * 1.6;
+		//if(canReach){
+		//	double distance = std::sqrt((scn->tipPosition - scn->spherePosition).squaredNorm());
+		//	if (std::abs(distance) <= 0.1) {
+		//		Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		//		std::vector<Eigen::Vector3d> joints;	//R = cylinder base, E = cylinder tip
+		//		std::vector<Eigen::Vector3d> saved_joints;
+		//		joints.push_back(O);
+		//		Eigen::Vector3d length(0, 0, scn->linkLength);
+
+		//		// calculating all the joints' points
+		//		Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+		//		for (int i = 1; i < scn->data_list.size(); i++) {
+		//			rotationSum *= scn->data_list[i].GetRotation();
+
+		//			O += rotationSum * length;
+		//			joints.push_back(O);
+		//		}
+		//		saved_joints = joints;
+
+		//		/*std::cout << "BEFORE:" << std::endl;
+		//		for (int i = 0; i < joints.size(); i++) {
+		//			std::cout << joints[i] << std::endl;
+		//		}*/
+
+		//		double dist = std::sqrt((joints[0] - scn->spherePosition).squaredNorm());
+
+		//		// checking if reachable
+		//		if (dist > scn->linkLength * scn->linkNum) {
+		//			for (int i = 0; i < joints.size() - 1; i++) {
+		//				double ri = std::sqrt((joints[i] - scn->spherePosition).squaredNorm());
+		//				double gammai = scn->linkLength / ri;
+		//				joints[i + 1] = (1 - gammai) * joints[i] + gammai * scn->spherePosition;
+		//			}
+		//		}
+		//		else {
+		//			Eigen::Vector3d b = joints[0];
+		//			double difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+
+		//			double tol = 0.1; // assuming tol is 0.1
+		//			while (difA > tol) {
+		//				joints[joints.size() - 1] = scn->spherePosition;
+		//				for (int i = joints.size() - 2; i >= 0; i--) {
+		//					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+		//					double gammai = scn->linkLength / ri;
+		//					joints[i] = (1 - gammai) * joints[i + 1] + gammai * joints[i];
+		//				}
+		//				joints[0] = b;
+
+		//				for (int i = 0; i < joints.size() - 1; i++) {
+		//					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+		//					double gammai = scn->linkLength / ri;
+		//					joints[i + 1] = (1 - gammai) * joints[i] + gammai * joints[i + 1];
+		//				}
+		//				difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+		//			}
+		//		}
+		//		// new tip position
+		//		scn->tipPosition = joints[joints.size() - 1];
+		//		fabrikPoints = joints;
+		//		fabrikMovingPoints = saved_joints;
+		//	}
+		//	else {
+		//		std::vector<Eigen::Vector3d> saved_joints;
+		//		saved_joints.push_back(O);
+		//		Eigen::Vector3d length(0, 0, scn->linkLength);
+		//		// calculating all the joints' points
+		//		Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+		//		for (int i = 1; i < scn->data_list.size(); i++) {
+		//			rotationSum *= scn->data_list[i].GetRotation();
+
+		//			O += rotationSum * length;
+		//			saved_joints.push_back(O);
+		//		}
+
+		//		fabrikMovingPoints = saved_joints;
+		//	}
+		//	
+		//	
+		//	
+
+
+		//	// moving the links
+		//	for (int i = 0; i < fabrikPoints.size() - 1; i++){
+		//		Eigen::Vector3d RE = fabrikMovingPoints[i+1] - fabrikPoints[i];
+		//		Eigen::Vector3d RD = fabrikPoints[i+1] - fabrikPoints[i];
+		//		double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+		//		//std::cout << "angle before rand: " << angle << std::endl;
+		//		if (angle <= 1 && angle >= -1) {
+		//			angle = acos(angle)/15;
+		//		}
+		//		else {
+		//			angle = angle > 1 ? acos(1) : acos(-1);
+		//		}
+
+		//		Eigen::Vector3d plane = RE.cross(RD).normalized();
+		//		//ED/std::sqrt(ED.squaredNorm())
+		//		if(i + 1 < scn->data_list.size()){
+		//			scn->data_list[i+1].MyRotate(plane, angle); //todo make better ccd movement
+		//		}
+		//	}
+
+		//	// calculating the new poistion of the tip after moving the links
+		//	Eigen::Vector3d tip = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+		//	Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
+		//	Eigen::Vector3d length1(0, 0, scn->linkLength);
+		//	for (int i = 1; i < scn->data_list.size(); i++) {
+		//		rotationSum *= scn->data_list[i].GetRotation();
+
+		//		tip += rotationSum * length1;
+		//	}
+
+		//	// checking if the tip moved close enough to the target
+		//	double distance1 = std::sqrt((tip - scn->spherePosition).squaredNorm());
+		//	if (std::abs(distance1) <= 0.1) {
+		//		toggleFabrik = false;
+		//		std::cout << "reached!" << std::endl;
+		//		return true;
+		//	}	
+		//}
+		//else{
+		//	toggleFabrik = false;
+		//	std::cout << "cannot reach" << std::endl;
+		//	return false;
+		//}
 	}
 
 

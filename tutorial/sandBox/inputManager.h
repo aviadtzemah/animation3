@@ -125,6 +125,8 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 	Eigen::Vector3d length(0, 0, scn->linkLength);
 	Eigen::Vector3d R, E, D;
 	Eigen::Matrix3d rotationSum;
+
+	Eigen::Vector3d tip;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -234,7 +236,15 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			break;
 		case 'T':
 		case 't':
-			std::cout << "tip position: " << scn->tipPosition << std::endl; 
+			// calculating the new poistion of the tip after moving the links
+			tip = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
+			rotationSum = Eigen::Matrix3d::Identity();
+			for (int i = 1; i < scn->data_list.size(); i++) {
+				rotationSum *= scn->data_list[i].GetRotation();
+
+				tip += rotationSum * length;
+			}
+			std::cout << "tip position: " << tip << std::endl;
 			break;
 		case 'D':
 		case 'd':

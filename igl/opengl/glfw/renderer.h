@@ -108,6 +108,8 @@ public:
 	bool toggleCCD;
 	bool toggleFabrik;
 	int currTip;
+	std::vector<Eigen::Vector3d> fabrikPoints;
+	std::vector<Eigen::Vector3d> fabrikMovingPoints;
 	IGL_INLINE bool AnimateCCD();
 	IGL_INLINE bool AnimateFabrik();
 
