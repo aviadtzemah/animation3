@@ -1,14 +1,14 @@
 # Target labels
  libigl-imgui-download
 # Source files and their labels
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/libigl-imgui-download
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/01b1e1205e1c7d280cd39d0d33788982/libigl-imgui-download.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/5785baa9d819e8f130374fada4b3e26c/libigl-imgui-download-complete.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-build.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-configure.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-download.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-install.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-mkdir.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-patch.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-test.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/libigl-imgui/CMakeFiles/211d3cb02ea6fe067ad44725f3b101b2/libigl-imgui-download-update.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/libigl-imgui-download
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/f25cb45ad09e44eedbbcea3e5f51b3b5/libigl-imgui-download.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/87958a7c5188b84d332c73a397be30da/libigl-imgui-download-complete.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-build.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-configure.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-download.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-install.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-mkdir.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-patch.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-test.rule
+C:/animation3/animation3/external/.cache/libigl-imgui/CMakeFiles/12286636ba8047c237c764299477db86/libigl-imgui-download-update.rule

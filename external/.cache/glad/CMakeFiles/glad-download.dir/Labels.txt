@@ -1,14 +1,14 @@
 # Target labels
  glad-download
 # Source files and their labels
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/glad-download
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/de527a7cfe6cb3fb8de1cda654768cce/glad-download.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/e6a12c56b30665153d2c81c6c95691ba/glad-download-complete.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-build.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-configure.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-download.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-install.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-mkdir.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-patch.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-test.rule
-D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/glad/CMakeFiles/4c3460e01b49dfe60a628b134fc2bb9d/glad-download-update.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/glad-download
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/21e95d42b97b9a788eec4ca555e69790/glad-download.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/f973c2b14fad8fee3d15aa893e69da68/glad-download-complete.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-build.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-configure.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-download.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-install.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-mkdir.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-patch.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-test.rule
+C:/animation3/animation3/external/.cache/glad/CMakeFiles/2439428d586f399115fe99e70581bddf/glad-download-update.rule

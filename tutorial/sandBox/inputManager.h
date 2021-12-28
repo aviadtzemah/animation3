@@ -228,10 +228,12 @@ static void glfw_key_callback(GLFWwindow* window, int key, int scancode, int act
 			}
 			break;
 		case ' ':
+			//rndr->fixAxis();
 			rndr->toggleCCD = !rndr->toggleCCD;
 			break;
 		case 'V':
 		case 'v':
+			//rndr->fixAxis();
 			rndr->toggleFabrik = !rndr->toggleFabrik;
 			break;
 		case 'T':

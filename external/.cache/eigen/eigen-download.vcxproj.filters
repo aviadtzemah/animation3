@@ -1,44 +1,44 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-mkdir.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-mkdir.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-download.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-download.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-update.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-update.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-patch.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-patch.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-configure.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-configure.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-build.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-build.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-install.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-install.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\1c47da656eabec44296ec9d78526b994\eigen-download-test.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\1adf8ec449f5b64ebbacb554237df2eb\eigen-download-test.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\d5901f0c58cc08ddfa0658403d6befde\eigen-download-complete.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\3df1cd245d433324c49f8cf10dc77b25\eigen-download-complete.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\a186306e382637a7118a9b0e1891fe29\eigen-download.rule">
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\4de1b6a66475d035d4f7232c51951847\eigen-download.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
-    <CustomBuild Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeLists.txt" />
+    <CustomBuild Include="C:\animation3\animation3\external\.cache\eigen\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="D:\UniversityAssiments\Animation\Assignment3\EngineForAnimationCourse\external\.cache\eigen\CMakeFiles\eigen-download" />
+    <None Include="C:\animation3\animation3\external\.cache\eigen\CMakeFiles\eigen-download" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{C9C7DAF7-177D-3E0F-9184-30496B3376CC}</UniqueIdentifier>
+      <UniqueIdentifier>{78DCC7ED-0B7A-34FF-8034-1A3D13CC4C70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

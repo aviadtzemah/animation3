@@ -1,6 +1,6 @@
-^D:\UNIVERSITYASSIMENTS\ANIMATION\ASSIGNMENT3\ENGINEFORANIMATIONCOURSE\EXTERNAL\.CACHE\STB\CMAKEFILES\90A4B7B2812D0D760FFCD612E35587F7\GENERATE.STAMP.RULE
+^C:\ANIMATION3\ANIMATION3\EXTERNAL\.CACHE\STB\CMAKEFILES\F6A0ED85DB71080EBE9B5EAC27AB4000\GENERATE.STAMP.RULE
 setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SD:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/stb -BD:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/stb --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/UniversityAssiments/Animation/Assignment3/EngineForAnimationCourse/external/.cache/stb/stb-download.sln
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/animation3/animation3/external/.cache/stb -BC:/animation3/animation3/external/.cache/stb --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/animation3/animation3/external/.cache/stb/stb-download.sln
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone

@@ -368,10 +368,22 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		return core_list.back().id;
 	}
 
+	IGL_INLINE void Renderer::fixAxis() {
+		for (int i = 1; i < scn->data_list.size(); i++) {
+			Eigen::Matrix3d rotation_matatrix = scn->data_list[i].GetRotation();
+			Eigen::Vector3d euler_angle = rotation_matatrix.eulerAngles(2, 0, 2);
+			double rotZ = euler_angle[2];
+			scn->data_list[i].MyRotate(Eigen::Vector3d(0, 0, 1), -rotZ);
+			if (i != scn->linkNum) {
+				scn->data_list[i + 1].RotateInSystem(Eigen::Vector3d(0, 0, 1), rotZ);
+			}
+		}
+	}
+
 	// OUR ADDITION
 	IGL_INLINE bool Renderer::AnimateCCD() {
 		Eigen::Vector3d O = (scn->data_list[1].MakeTransd() * Eigen::Vector4d(0, 0, 0, 1)).head(3) - scn->data_list[1].GetRotation() * Eigen::Vector3d(0, 0, scn->linkLength / 2);
-		bool canReach = std::sqrt((O - scn->spherePosition).squaredNorm()) < scn->linkNum * 1.6;
+		bool canReach = (O - scn->spherePosition).norm() < scn->linkNum * 1.6;
 		if(canReach){
 			// currTip goes from linkNum to 1
 
@@ -393,16 +405,17 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 			}
 
 			scn->tipPosition = E;
-			double distance = std::sqrt((scn->tipPosition - scn->spherePosition).squaredNorm());
+			double distance =(scn->tipPosition - scn->spherePosition).norm();
 			if (std::abs(distance) <= 0.1) {
 				toggleCCD = false;
+				fixAxis();
 				std::cout << "reached!" << std::endl;
 				return true;
 			}
-			//std::cout << "E: " << E << std::endl;
+
 			Eigen::Vector3d RE = E - R;
 			Eigen::Vector3d RD = D - R;
-			double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+			double angle = RD.dot(RE) / (RE.norm() * RD.norm()); // currently holds cos(angle)
 			//std::cout << "angle before rand: " << angle << std::endl;
 
 			if (angle <= 1 && angle >= -1) {
@@ -413,8 +426,6 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 			}
 
 			Eigen::Vector3d plane = RE.cross(RD).normalized();
-			//ED/std::sqrt(ED.squaredNorm())
-			//plane / std::sqrt(plane.squaredNorm())
 			scn->data_list[currTip].MyRotate(plane, angle); //todo make better ccd movement
 
 			if (currTip == 1) {
@@ -426,6 +437,7 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		}
 		else{
 			toggleCCD = false;
+			fixAxis();
 			std::cout << "cannot reach" << std::endl;
 			return false;
 		}
@@ -443,41 +455,40 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		Eigen::Matrix3d rotationSum = Eigen::Matrix3d::Identity();
 		for (int i = 1; i < scn->data_list.size(); i++) {
 			rotationSum *= scn->data_list[i].GetRotation();
-
 			O += rotationSum * length;
 			joints.push_back(O);
 		}
 		saved_joints = joints;
 
-		double dist = std::sqrt((joints[0] - scn->spherePosition).squaredNorm());
+		double dist = (joints[0] - scn->spherePosition).norm();
 		// checking if reachable
 		if (dist > scn->linkLength * scn->linkNum) {
 			for (int i = 0; i < joints.size() - 1; i++) {
-				double ri = std::sqrt((joints[i] - scn->spherePosition).squaredNorm());
+				double ri = (joints[i] - scn->spherePosition).norm();
 				double gammai = scn->linkLength / ri;
 				joints[i + 1] = (1 - gammai) * joints[i] + gammai * scn->spherePosition;
 			}
 		}
 		else {
 			Eigen::Vector3d b = joints[0];
-			double difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+			double difA = (joints[joints.size() - 1] - scn->spherePosition).norm();
 
 			double tol = 0.1; // assuming tol is 0.1
 			while (difA > tol) {
 				joints[joints.size() - 1] = scn->spherePosition;
 				for (int i = joints.size() - 2; i >= 0; i--) {
-					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+					double ri = (joints[i + 1] - joints[i]).norm();
 					double gammai = scn->linkLength / ri;
 					joints[i] = (1 - gammai) * joints[i + 1] + gammai * joints[i];
 				}
 				joints[0] = b;
 
 				for (int i = 0; i < joints.size() - 1; i++) {
-					double ri = std::sqrt((joints[i + 1] - joints[i]).squaredNorm());
+					double ri = (joints[i + 1] - joints[i]).norm();
 					double gammai = scn->linkLength / ri;
 					joints[i + 1] = (1 - gammai) * joints[i] + gammai * joints[i + 1];
 				}
-				difA = std::sqrt((joints[joints.size() - 1] - scn->spherePosition).squaredNorm());
+				difA = (joints[joints.size() - 1] - scn->spherePosition).norm();
 			}
 		}
 
@@ -485,7 +496,7 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		for (int i = 0; i < joints.size() - 1; i++) {
 			Eigen::Vector3d RE = saved_joints[i + 1] - saved_joints[i];
 			Eigen::Vector3d RD = joints[i + 1] - saved_joints[i];
-			double angle = RD.dot(RE) / (std::sqrt(RE.squaredNorm()) * std::sqrt(RD.squaredNorm())); // currently holds cos(angle)
+			double angle = RD.dot(RE) / (RE.norm() * RD.norm()); // currently holds cos(angle)
 			//std::cout << "angle before rand: " << angle << std::endl;
 			if (angle <= 1 && angle >= -1) {
 				angle = acos(angle) / 40;
@@ -507,14 +518,14 @@ IGL_INLINE void Renderer::resize(GLFWwindow* window,int w, int h)
 		Eigen::Vector3d length1(0, 0, scn->linkLength);
 		for (int i = 1; i < scn->data_list.size(); i++) {
 			rotationSum1 *= scn->data_list[i].GetRotation();
-
 			tip += rotationSum1 * length1;
 		}
 
 		// checking if the tip moved close enough to the target
-		double distance1 = std::sqrt((tip - scn->spherePosition).squaredNorm());
+		double distance1 = (tip - scn->spherePosition).norm();
 		if (std::abs(distance1) <= 0.1) {
 			toggleFabrik = false;
+			fixAxis();
 			std::cout << "reached!" << std::endl;
 			return true;
 		}

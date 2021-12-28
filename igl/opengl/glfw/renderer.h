@@ -112,6 +112,7 @@ public:
 	std::vector<Eigen::Vector3d> fabrikMovingPoints;
 	IGL_INLINE bool AnimateCCD();
 	IGL_INLINE bool AnimateFabrik();
+	IGL_INLINE void Renderer::fixAxis();
 
 	
 private:
